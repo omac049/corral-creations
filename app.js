@@ -16,6 +16,19 @@ const formMessage = document.querySelector('.form-message');
 let currentProduct = null;
 let previousFocus = null;
 
+const loaderStartedAt = performance.now();
+let loaderSeen = false;
+try { loaderSeen = sessionStorage.getItem('corral-loader-seen') === 'true'; } catch { /* Continue without session storage. */ }
+
+window.addEventListener('load', () => {
+  const minimumDisplay = loaderSeen ? 0 : 700;
+  const remaining = Math.max(0, minimumDisplay - (performance.now() - loaderStartedAt));
+  window.setTimeout(() => {
+    document.body.classList.add('is-loaded');
+    try { sessionStorage.setItem('corral-loader-seen', 'true'); } catch { /* The loader still dismisses normally. */ }
+  }, remaining);
+}, { once: true });
+
 function loadCart() {
   try {
     const saved = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) || '[]');
@@ -83,12 +96,12 @@ function renderCart() {
         <h3>${item.name}</h3>
         <p>$${item.price.toFixed(2)}</p>
         <div class="quantity" aria-label="Quantity for ${item.name}">
-          <button type="button" data-action="decrease" data-id="${item.id}" aria-label="Decrease quantity">−</button>
+          <button type="button" data-action="decrease" data-id="${item.id}" aria-label="Decrease quantity"><svg class="icon" aria-hidden="true"><use href="#icon-minus"></use></svg></button>
           <span>${item.quantity}</span>
-          <button type="button" data-action="increase" data-id="${item.id}" aria-label="Increase quantity">＋</button>
+          <button type="button" data-action="increase" data-id="${item.id}" aria-label="Increase quantity"><svg class="icon" aria-hidden="true"><use href="#icon-plus"></use></svg></button>
         </div>
       </div>
-      <button class="remove-item" type="button" data-action="remove" data-id="${item.id}" aria-label="Remove ${item.name}">×</button>
+      <button class="remove-item" type="button" data-action="remove" data-id="${item.id}" aria-label="Remove ${item.name}"><svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg></button>
     </article>
   `).join('');
 }
@@ -222,6 +235,8 @@ document.querySelectorAll('.reveal').forEach((el, index) => {
   el.style.transitionDelay = `${Math.min(index % 4, 3) * 70}ms`;
   observer.observe(el);
 });
+
+document.querySelectorAll('[data-motion]').forEach((el) => observer.observe(el));
 
 loadCart();
 renderCart();
