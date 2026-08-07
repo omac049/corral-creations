@@ -129,8 +129,19 @@ function closeCart() {
 
 document.querySelectorAll('.product').forEach((productEl) => {
   const product = productFromElement(productEl);
+  const imageButton = productEl.querySelector('.product-image');
   productEl.querySelector('.add-button').addEventListener('click', () => addToCart(product));
-  productEl.querySelector('.product-image').addEventListener('click', () => {
+  imageButton.addEventListener('pointermove', (event) => {
+    if (event.pointerType === 'touch') return;
+    const bounds = imageButton.getBoundingClientRect();
+    imageButton.style.setProperty('--pointer-x', `${((event.clientX - bounds.left) / bounds.width) * 100}%`);
+    imageButton.style.setProperty('--pointer-y', `${((event.clientY - bounds.top) / bounds.height) * 100}%`);
+  });
+  imageButton.addEventListener('pointerleave', () => {
+    imageButton.style.setProperty('--pointer-x', '50%');
+    imageButton.style.setProperty('--pointer-y', '42%');
+  });
+  imageButton.addEventListener('click', () => {
     currentProduct = product;
     dialog.querySelector('img').src = product.image;
     dialog.querySelector('img').alt = product.name;
