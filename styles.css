@@ -58,6 +58,7 @@ img { display: block; max-width: 100%; }
 .bag-button:hover { color: var(--pink-dark); }
 .bag-button:active, .icon-button:active, .add-button:active, .close-cart:active, .dialog-close:active, .quantity button:active, .remove-item:active { transform: scale(.96); }
 .bag-count { display: inline-grid; place-items: center; margin-left: 6px; min-width: 25px; height: 25px; padding: 0 6px; border-radius: 999px; color: white; background: var(--accessible-pink); }
+.bag-count.bump, .mobile-bag-count.bump { animation: bagPop 480ms var(--ease-out) both; }
 .menu-button { display: none; width: 44px; height: 44px; padding: 7px 3px; }
 .menu-button span { display: block; width: 22px; height: 1.5px; margin: 5px 0; border-radius: 999px; background: var(--forest); transition: transform 180ms var(--ease-out); }
 .menu-button[aria-expanded="true"] span:first-child { transform: translateY(3.25px) rotate(45deg); }
@@ -138,6 +139,7 @@ img { display: block; max-width: 100%; }
 .add-button { width: 100%; min-height: 44px; padding: 10px 2px; display: flex; justify-content: space-between; align-items: center; border: 0; border-top: 1px solid var(--line); background: transparent; color: var(--forest); font-size: 10px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; cursor: pointer; transition: color 160ms ease, transform 160ms var(--ease-out); }
 .add-button .icon { width: 18px; height: 18px; stroke-width: 1.8; }
 .add-button:hover { color: var(--pink-dark); }
+.add-button.is-added { color: var(--pink-dark); }
 
 .story-section { min-height: 680px; position: relative; overflow: hidden; display: grid; grid-template-columns: .9fr 1.1fr; align-items: center; background: var(--blush); }
 .story-mark { width: 330px; height: 330px; justify-self: center; display: grid; place-items: center; position: relative; }
@@ -166,6 +168,9 @@ img { display: block; max-width: 100%; }
 .plush-icon { margin: 0; text-align: center; }
 .plush-icon > div { height: 250px; display: grid; place-items: end center; overflow: hidden; }
 .plush-icon img { width: 100%; height: 100%; min-width: 0; min-height: 0; object-fit: contain; object-position: center bottom; filter: drop-shadow(0 14px 14px rgba(47,79,70,.12)); transition: transform .35s ease; }
+.plush-icon:nth-child(1) img { animation: friendFloat 4.8s ease-in-out infinite; }
+.plush-icon:nth-child(2) img { animation: friendFloat 5.4s ease-in-out .45s infinite reverse; }
+.plush-icon:nth-child(3) img { animation: friendFloat 5.1s ease-in-out .8s infinite; }
 .plush-icon:hover img { transform: translateY(-8px) rotate(-2deg); }
 .plush-icon:nth-child(2):hover img { transform: translateY(-8px) rotate(2deg); }
 .plush-icon figcaption { margin-top: 11px; color: var(--pink-dark); font-family: var(--serif); font-size: 21px; font-style: italic; }
@@ -270,6 +275,8 @@ footer > p { margin: 0; font-size: 10px; letter-spacing: .17em; text-transform: 
 @keyframes petalOpenRight { 0% { opacity: 0; transform: rotate(34deg) scale(.25); } 55% { opacity: .85; transform: rotate(56deg) scale(1); } 100% { opacity: .5; transform: rotate(48deg) scale(.82); } }
 @keyframes loaderGlow { 0%, 100% { opacity: .45; transform: scale(.94); } 50% { opacity: .8; transform: scale(1); } }
 @keyframes brandHeartIdle { 0%, 84%, 100% { transform: scale(1); } 89% { transform: scale(1.16); } 94% { transform: scale(.96); } }
+@keyframes bagPop { 0% { transform: scale(1); } 42% { transform: scale(1.28) rotate(-6deg); } 72% { transform: scale(.92) rotate(3deg); } 100% { transform: scale(1); } }
+@keyframes friendFloat { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-7px) rotate(1deg); } }
 @keyframes brandHeartIn { 0% { opacity: .25; transform: scale(.82); } 58% { opacity: 1; transform: scale(1.12); } 100% { opacity: 1; transform: scale(1); } }
 @keyframes brandSparkIn { 0% { opacity: .2; transform: rotate(-16deg) scale(.7); } 62% { opacity: 1; transform: rotate(4deg) scale(1.08); } 100% { opacity: 1; transform: none; } }
 @keyframes yarnRollIn { 0% { opacity: .25; transform: translateX(-8px) rotate(-10deg); } 100% { opacity: 1; transform: none; } }

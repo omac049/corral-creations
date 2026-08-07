@@ -12,7 +12,7 @@ Then open `http://127.0.0.1:4174/`.
 
 ## Deployment
 
-This is a static site: `index.html`, `styles.css`, `app.js`, and `assets/` can be deployed from the repository root with GitHub Pages or another static host.
+This is a static site: `index.html`, `styles.css`, `app.js`, and `assets/` can be deployed from the repository root with GitHub Pages or another static host. The newsletter form is intentionally transparent about its not-yet-connected provider; connect a mailing-list endpoint before treating submissions as opt-in records.
 
 ## Sandbox Stripe checkout
 

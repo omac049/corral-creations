@@ -23,7 +23,7 @@ function corsHeaders(request, env) {
   return {
     'access-control-allow-origin': approvedOrigin ? origin : allowed[0] || 'null',
     'access-control-allow-methods': 'POST, OPTIONS',
-    'access-control-allow-headers': 'content-type, stripe-signature',
+    'access-control-allow-headers': 'content-type, idempotency-key, stripe-signature',
     vary: 'origin',
   };
 }
@@ -135,7 +135,7 @@ async function createCheckoutSession(request, env, headers) {
     headers: {
       authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
       'content-type': 'application/x-www-form-urlencoded',
-      'idempotency-key': crypto.randomUUID(),
+      'idempotency-key': request.headers.get('idempotency-key') || crypto.randomUUID(),
     },
     body: params,
   });

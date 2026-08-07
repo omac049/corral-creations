@@ -1,5 +1,15 @@
 const CART_STORAGE_KEY = 'corral-creations-cart';
+const MAX_QUANTITY = 10;
 const cart = new Map();
+const products = new Map([...document.querySelectorAll('.product')].map((el) => {
+  const product = {
+    id: el.dataset.id,
+    name: el.dataset.name,
+    price: Number(el.dataset.price),
+    image: el.dataset.image,
+  };
+  return [product.id, product];
+}));
 const bagCount = document.querySelector('.bag-count');
 const cartDrawer = document.querySelector('.cart-drawer');
 const cartItems = document.querySelector('.cart-items');
@@ -17,6 +27,7 @@ const formMessage = document.querySelector('.form-message');
 const checkoutApiUrl = document.querySelector('meta[name="checkout-api-url"]')?.content?.replace(/\/$/, '') || '';
 let currentProduct = null;
 let previousFocus = null;
+let scrimHideTimer = null;
 
 const loaderStartedAt = performance.now();
 let loaderSeen = false;
@@ -36,8 +47,10 @@ function loadCart() {
     const saved = JSON.parse(localStorage.getItem(CART_STORAGE_KEY) || '[]');
     if (!Array.isArray(saved)) return;
     saved.forEach((item) => {
-      if (item?.id && item?.name && Number.isFinite(item.price) && Number.isFinite(item.quantity) && item.quantity > 0) {
-        cart.set(item.id, { ...item, price: Number(item.price), quantity: Math.floor(item.quantity) });
+      const product = products.get(item?.id);
+      const quantity = Number(item?.quantity);
+      if (product && Number.isInteger(quantity) && quantity > 0) {
+        cart.set(product.id, { ...product, quantity: Math.min(quantity, MAX_QUANTITY) });
       }
     });
   } catch {
@@ -60,11 +73,27 @@ const productFromElement = (el) => ({
   image: el.dataset.image,
 });
 
-function addToCart(product) {
+function addToCart(product, sourceButton = null) {
   const existing = cart.get(product.id);
-  cart.set(product.id, { ...product, quantity: existing ? existing.quantity + 1 : 1 });
+  const quantity = Math.min(existing ? existing.quantity + 1 : 1, MAX_QUANTITY);
+  cart.set(product.id, { ...product, quantity });
   persistCart();
   renderCart();
+  bagCount.classList.remove('bump');
+  mobileBagCount?.classList.remove('bump');
+  requestAnimationFrame(() => {
+    bagCount.classList.add('bump');
+    mobileBagCount?.classList.add('bump');
+  });
+  if (sourceButton) {
+    const defaultLabel = sourceButton.innerHTML;
+    sourceButton.classList.add('is-added');
+    sourceButton.textContent = 'Tucked in ✦';
+    window.setTimeout(() => {
+      sourceButton.innerHTML = defaultLabel;
+      sourceButton.classList.remove('is-added');
+    }, 1200);
+  }
   openCart();
 }
 
@@ -110,6 +139,7 @@ function renderCart() {
 
 function openCart() {
   previousFocus = document.activeElement;
+  window.clearTimeout(scrimHideTimer);
   scrim.hidden = false;
   requestAnimationFrame(() => cartDrawer.classList.add('open'));
   cartDrawer.setAttribute('aria-hidden', 'false');
@@ -125,14 +155,17 @@ function closeCart() {
   bagButton.setAttribute('aria-expanded', 'false');
   mobileBagButton?.setAttribute('aria-expanded', 'false');
   document.body.classList.remove('no-scroll');
-  setTimeout(() => { scrim.hidden = true; }, 300);
+  scrimHideTimer = window.setTimeout(() => {
+    if (!cartDrawer.classList.contains('open')) scrim.hidden = true;
+  }, 300);
   if (previousFocus && typeof previousFocus.focus === 'function') previousFocus.focus();
 }
 
 document.querySelectorAll('.product').forEach((productEl) => {
   const product = productFromElement(productEl);
   const imageButton = productEl.querySelector('.product-image');
-  productEl.querySelector('.add-button').addEventListener('click', () => addToCart(product));
+  const addButton = productEl.querySelector('.add-button');
+  addButton.addEventListener('click', () => addToCart(product, addButton));
   imageButton.addEventListener('pointermove', (event) => {
     if (event.pointerType === 'touch') return;
     const bounds = imageButton.getBoundingClientRect();
@@ -197,8 +230,8 @@ mobileMenu.querySelectorAll('a').forEach((link) => link.addEventListener('click'
 document.querySelector('.newsletter-form').addEventListener('submit', (event) => {
   event.preventDefault();
   const input = event.currentTarget.querySelector('input');
-  formMessage.textContent = 'Thanks — the studio list is ready to connect to your email platform.';
-  input.value = '';
+  formMessage.textContent = 'Newsletter signup is coming soon. Please use Contact if you would like to reach the studio.';
+  input.focus();
 });
 
 document.querySelector('.checkout-button').addEventListener('click', async (event) => {
@@ -217,7 +250,10 @@ document.querySelector('.checkout-button').addEventListener('click', async (even
   try {
     const response = await fetch(`${checkoutApiUrl}/checkout`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: {
+        'content-type': 'application/json',
+        'idempotency-key': crypto.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      },
       body: JSON.stringify({
         items: [...cart.values()].map(({ id, quantity }) => ({ id, quantity })),
       }),
@@ -235,14 +271,17 @@ document.querySelector('.checkout-button').addEventListener('click', async (even
 function showCheckoutStatus() {
   const checkout = new URLSearchParams(window.location.search).get('checkout');
   if (!checkoutStatus || !checkout) return;
-  checkoutStatus.hidden = false;
   if (checkout === 'success') {
+    const sessionId = new URLSearchParams(window.location.search).get('session_id');
+    if (!sessionId) return;
+    checkoutStatus.hidden = false;
     cart.clear();
     persistCart();
     renderCart();
     checkoutStatus.textContent = 'Payment received — thank you. Your order is being prepared.';
     checkoutStatus.classList.add('is-success');
   } else if (checkout === 'cancelled') {
+    checkoutStatus.hidden = false;
     checkoutStatus.textContent = 'Checkout was cancelled. Your bag is still here when you are ready.';
     checkoutStatus.classList.add('is-cancelled');
   }
