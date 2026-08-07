@@ -9,10 +9,11 @@
     <meta property="og:description" content="Whimsical crochet pieces to gift, keep, and love for a long time." />
     <meta property="og:image" content="assets/hero-crochet-studio.png" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="checkout-api-url" content="https://corral-checkout.omar-seogears.workers.dev" />
     <title>Corral Creations — Handmade with love</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Instrument+Serif:ital@0;1&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
   </head>
@@ -70,6 +71,7 @@
           <h1 id="hero-title">Little comforts,<br /><em>made by hand.</em></h1>
           <p>Thoughtful crochet pieces to gift, keep, and love for a long time.</p>
         <a class="button primary-button" href="#shop">Shop the collection <svg class="icon" aria-hidden="true"><use href="#icon-heart"></use></svg></a>
+          <span class="hero-whisper" aria-hidden="true">p.s. the hearts are handmade too <span>✦</span></span>
         </div>
         <div class="hero-stamp" aria-hidden="true"><img src="assets/logos/corral-badge-transparent.png" alt="" /></div>
         <div class="hero-note" aria-hidden="true">Made slowly in small batches</div>
@@ -155,11 +157,6 @@
           <p class="eyebrow">The Corral Creations mark</p>
           <h2 id="brand-suite-title">One heart,<br /><em>many little ways.</em></h2>
           <p>Our alternate marks travel with the brand—from package stickers and thank-you cards to tiny social avatars.</p>
-          <div class="type-spec" aria-label="Corral Creations typography system">
-            <span><b>Display</b> Recoleta-inspired</span>
-            <span><b>Body</b> Poppins</span>
-            <span><b>Accent</b> Instrument Serif Italic</span>
-          </div>
         </div>
         <div class="brand-suite-marks">
           <div class="brand-mark-card reveal bloom-card"><div class="bloom-mark"><span class="bloom-petal bloom-petal-left" aria-hidden="true"></span><span class="bloom-petal bloom-petal-right" aria-hidden="true"></span><img class="bloom-logo" src="assets/logos/corral-loader.svg" alt="Animated Corral Creations yarn and crochet hook mark" loading="lazy" decoding="async" /></div></div>
@@ -222,11 +219,12 @@
       <div class="cart-items" aria-live="polite"><p class="empty-cart">Your bag is waiting for something lovely.</p></div>
       <div class="cart-footer" hidden>
         <div class="subtotal"><span>Subtotal</span><strong>$0</strong></div>
-        <p>Shipping and taxes calculated at checkout.</p>
+        <p>Shipping is calculated at checkout.</p>
         <button class="button checkout-button" type="button">Checkout <svg class="icon" aria-hidden="true"><use href="#icon-heart"></use></svg></button>
         <p class="checkout-message" role="status" hidden></p>
       </div>
     </aside>
+    <p class="checkout-status" role="status" aria-live="polite" hidden></p>
 
     <dialog class="product-dialog" aria-labelledby="product-dialog-title" aria-describedby="product-dialog-description">
       <button class="dialog-close" type="button" aria-label="Close product details"><svg class="icon" aria-hidden="true"><use href="#icon-close"></use></svg></button>

@@ -6,6 +6,7 @@ const cartItems = document.querySelector('.cart-items');
 const cartFooter = document.querySelector('.cart-footer');
 const subtotal = document.querySelector('.subtotal strong');
 const checkoutMessage = document.querySelector('.checkout-message');
+const checkoutStatus = document.querySelector('.checkout-status');
 const scrim = document.querySelector('.scrim');
 const dialog = document.querySelector('.product-dialog');
 const closeCartButton = document.querySelector('.close-cart');
@@ -13,6 +14,7 @@ const bagButton = document.querySelector('.bag-button');
 const mobileBagButton = document.querySelector('.mobile-nav-bag');
 const mobileBagCount = document.querySelector('.mobile-bag-count');
 const formMessage = document.querySelector('.form-message');
+const checkoutApiUrl = document.querySelector('meta[name="checkout-api-url"]')?.content?.replace(/\/$/, '') || '';
 let currentProduct = null;
 let previousFocus = null;
 
@@ -199,10 +201,52 @@ document.querySelector('.newsletter-form').addEventListener('submit', (event) =>
   input.value = '';
 });
 
-document.querySelector('.checkout-button').addEventListener('click', () => {
+document.querySelector('.checkout-button').addEventListener('click', async (event) => {
+  const button = event.currentTarget;
   checkoutMessage.hidden = false;
-  checkoutMessage.textContent = 'Checkout is ready to connect to Shopify, Stripe, or your preferred payment provider.';
+
+  if (!checkoutApiUrl) {
+    checkoutMessage.textContent = 'Secure checkout is being configured. Please try again shortly.';
+    return;
+  }
+
+  button.disabled = true;
+  button.classList.add('is-loading');
+  checkoutMessage.textContent = 'Opening secure Stripe checkout…';
+
+  try {
+    const response = await fetch(`${checkoutApiUrl}/checkout`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        items: [...cart.values()].map(({ id, quantity }) => ({ id, quantity })),
+      }),
+    });
+    const result = await response.json();
+    if (!response.ok || !result.url) throw new Error(result.error || 'Checkout is unavailable.');
+    window.location.assign(result.url);
+  } catch (error) {
+    checkoutMessage.textContent = error.message || 'Checkout is unavailable. Please try again.';
+    button.disabled = false;
+    button.classList.remove('is-loading');
+  }
 });
+
+function showCheckoutStatus() {
+  const checkout = new URLSearchParams(window.location.search).get('checkout');
+  if (!checkoutStatus || !checkout) return;
+  checkoutStatus.hidden = false;
+  if (checkout === 'success') {
+    cart.clear();
+    persistCart();
+    renderCart();
+    checkoutStatus.textContent = 'Payment received — thank you. Your order is being prepared.';
+    checkoutStatus.classList.add('is-success');
+  } else if (checkout === 'cancelled') {
+    checkoutStatus.textContent = 'Checkout was cancelled. Your bag is still here when you are ready.';
+    checkoutStatus.classList.add('is-cancelled');
+  }
+}
 
 document.addEventListener('keydown', (event) => {
   const cartOpen = cartDrawer.classList.contains('open');
@@ -251,3 +295,4 @@ document.querySelectorAll('[data-motion]').forEach((el) => observer.observe(el))
 
 loadCart();
 renderCart();
+showCheckoutStatus();

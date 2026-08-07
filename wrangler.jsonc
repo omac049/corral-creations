@@ -1,0 +1,20 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "corral-checkout",
+  "main": "checkout-worker.js",
+  "compatibility_date": "2025-08-07",
+  "vars": {
+    "ENVIRONMENT": "sandbox",
+    "STOREFRONT_URL": "https://omac049.github.io/corral-creations",
+    "ALLOWED_ORIGINS": "https://omac049.github.io",
+    "STRIPE_AUTOMATIC_TAX": "false"
+  },
+  "durable_objects": {
+    "bindings": [
+      { "name": "ORDERS", "class_name": "OrderLedger" }
+    ]
+  },
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["OrderLedger"] }
+  ]
+}
