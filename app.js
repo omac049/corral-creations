@@ -10,6 +10,8 @@ const scrim = document.querySelector('.scrim');
 const dialog = document.querySelector('.product-dialog');
 const closeCartButton = document.querySelector('.close-cart');
 const bagButton = document.querySelector('.bag-button');
+const mobileBagButton = document.querySelector('.mobile-nav-bag');
+const mobileBagCount = document.querySelector('.mobile-bag-count');
 const formMessage = document.querySelector('.form-message');
 let currentProduct = null;
 let previousFocus = null;
@@ -65,6 +67,7 @@ function renderCart() {
   const count = items.reduce((sum, item) => sum + item.quantity, 0);
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   bagCount.textContent = count;
+  if (mobileBagCount) mobileBagCount.textContent = count;
   subtotal.textContent = `$${total.toFixed(2)}`;
   cartFooter.hidden = items.length === 0;
 
@@ -96,6 +99,7 @@ function openCart() {
   requestAnimationFrame(() => cartDrawer.classList.add('open'));
   cartDrawer.setAttribute('aria-hidden', 'false');
   bagButton.setAttribute('aria-expanded', 'true');
+  mobileBagButton?.setAttribute('aria-expanded', 'true');
   document.body.classList.add('no-scroll');
   requestAnimationFrame(() => closeCartButton.focus());
 }
@@ -104,6 +108,7 @@ function closeCart() {
   cartDrawer.classList.remove('open');
   cartDrawer.setAttribute('aria-hidden', 'true');
   bagButton.setAttribute('aria-expanded', 'false');
+  mobileBagButton?.setAttribute('aria-expanded', 'false');
   document.body.classList.remove('no-scroll');
   setTimeout(() => { scrim.hidden = true; }, 300);
   if (previousFocus && typeof previousFocus.focus === 'function') previousFocus.focus();
@@ -123,6 +128,7 @@ document.querySelectorAll('.product').forEach((productEl) => {
 });
 
 bagButton.addEventListener('click', openCart);
+mobileBagButton?.addEventListener('click', openCart);
 document.querySelector('.close-cart').addEventListener('click', closeCart);
 scrim.addEventListener('click', closeCart);
 
